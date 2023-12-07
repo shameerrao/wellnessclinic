@@ -1,1 +1,1 @@
-# Porject Wellness Clinic
+# Project Wellness Clinic
