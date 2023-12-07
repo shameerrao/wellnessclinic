@@ -11,7 +11,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     if ($result->num_rows == 1) {
         $row = $result->fetch_assoc();
-        
+
         // Verify the entered password with the stored hash
         if (password_verify($password, $row['password'])) {
             // Password is correct, set session and redirect to the dashboard

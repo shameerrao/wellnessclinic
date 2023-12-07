@@ -13,12 +13,12 @@ $username = $_SESSION['username'];
 $sql = "SELECT first_name, last_name FROM users WHERE username = '$username'";
 $result = $conn->query($sql);
 
-if ($result->num_rows == 1) {
+if ($result && $result->num_rows == 1) {
     $row = $result->fetch_assoc();
     $first_name = $row['first_name'];
     $last_name = $row['last_name'];
 } else {
-    // Handle the case where user details are not found
+    // Handle the case where user details are not found or query fails
     $first_name = "Unknown";
     $last_name = "Unknown";
 }
@@ -35,6 +35,5 @@ $conn->close();
 </head>
 <body>
     <h2>Welcome, <?php echo $first_name . ' ' . $last_name; ?>!</h2>
-    <a href="logout.php">Logout</a>
 </body>
 </html>

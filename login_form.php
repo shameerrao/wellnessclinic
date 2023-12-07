@@ -1,20 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Login</title>
-</head>
-<body>
-    <h2>Login Form</h2>
-    <form action="login.php" method="post">
-        <label for="username">Username:</label>
-        <input type="text" name="username" required><br>
+<?php
+session_start();
+include('header.php');
+?>
 
-        <label for="password">Password:</label>
-        <input type="password" name="password" required><br>
+<h2>Login Form</h2>
+<form action="login.php" method="post">
+    <!-- Your login form content goes here -->
+    <label for="username">Username:</label>
+    <input type="text" name="username" required><br>
 
-        <input type="submit" value="Login">
-    </form>
-</body>
-</html>
+    <label for="password">Password:</label>
+    <input type="password" name="password" required><br>
+
+    <input type="submit" value="Login">
+</form>
