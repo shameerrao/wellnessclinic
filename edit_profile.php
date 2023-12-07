@@ -1,5 +1,6 @@
 <?php
 session_start();
+include('header.php');
 include('db_connection.php');
 
 if (!isset($_SESSION['username'])) {
@@ -67,7 +68,5 @@ $conn->close();
 
         <input type="submit" value="Update Profile">
     </form>
-
-    <a href="dashboard.php">Back to Dashboard</a>
 </body>
 </html>
