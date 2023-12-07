@@ -35,5 +35,11 @@ $conn->close();
 </head>
 <body>
     <h2>Welcome, <?php echo $first_name . ' ' . $last_name; ?>!</h2>
+
+    <!-- Add links for actions -->
+    <ul>
+        <li><a href="logout.php">Logout</a></li>
+        <li><a href="edit_profile.php">Edit Profile</a></li>
+    </ul>
 </body>
 </html>
