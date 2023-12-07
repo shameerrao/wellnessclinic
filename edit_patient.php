@@ -8,51 +8,74 @@ if (!isset($_SESSION['username'])) {
     exit();
 }
 
-// Check if the PatientID is provided in the URL
-if (!isset($_GET['PatientID'])) {
-    echo "Patient ID not provided";
-    exit();
-}
-
-$patientID = $_GET['PatientID'];
-
-// Fetch patient details from the database
-$sql = "SELECT * FROM patients WHERE PatientID = '$patientID'";
-$result = $conn->query($sql);
-
-if ($result && $result->num_rows == 1) {
-    $row = $result->fetch_assoc();
-    $name = $row['Name'];
-    $dob = $row['DOB'];
-    $sex = $row['Sex'];
-    // Add other fields similarly
-} else {
-    echo "Patient not found";
-    exit();
-}
+$editMessage = '';
+$showEnterPatientIDForm = true;
+$patientID = '';
 
 // Update patient details on form submission
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $newName = $_POST['new_name'];
-    $newDob = $_POST['new_dob'];
-    $newSex = $_POST['new_sex'];
-    // Add other fields similarly
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['patient_id'])) {
+    $patientID = $_POST['patient_id'];
 
-    $updateSql = "UPDATE patients SET Name='$newName', DOB='$newDob', Sex='$newSex' WHERE PatientID='$patientID'";
+    // Check if the PatientID is provided
+    if (!empty($patientID)) {
+        // Fetch patient details from the database
+        $sql = "SELECT * FROM patients WHERE PatientID = '$patientID'";
+        $result = $conn->query($sql);
 
-    if ($conn->query($updateSql) === TRUE) {
-        echo "Patient details updated successfully!";
-        // Refresh patient details after update
-        $name = $newName;
-        $dob = $newDob;
-        $sex = $newSex;
-        // Add other fields similarly
+        if ($result && $result->num_rows == 1) {
+            $row = $result->fetch_assoc();
+            $name = $row['name'];
+            $dob = $row['dob'];
+            $sex = $row['sex'];
+            $insuranceProvider = $row['InsuranceProvider'];
+            $insuranceNumber = $row['InsuranceNumber'];
+            $phoneNumber = $row['PhoneNumber'];
+            $patientAddress = $row['PatientAddress'];
+            $bloodType = $row['BloodType'];
+
+            $showEnterPatientIDForm = false; // Do not display the first form
+            $editMessage = "Patient found. You can now edit the details.";
+        } else {
+            $editMessage = "Patient not found. Please enter a valid Patient ID.";
+        }
     } else {
-        echo "Error updating patient details: " . $conn->error;
+        $editMessage = "Please enter a Patient ID.";
     }
 }
 
-$conn->close();
+// Handle form submission for updating patient details
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_patient'])) {
+    $newName = $_POST['new_name'];
+    $newDob = $_POST['new_dob'];
+    $newSex = $_POST['new_sex'];
+    $newInsuranceProvider = $_POST['new_insurance_provider'];
+    $newInsuranceNumber = $_POST['new_insurance_number'];
+    $newPhoneNumber = $_POST['new_phone_number'];
+    $newPatientAddress = $_POST['new_patient_address'];
+    $newBloodType = $_POST['new_blood_type'];
+
+    // Add a check to ensure $patientID is defined
+    if (!empty($patientID)) {
+        $updateSql = "UPDATE patients SET 
+                      name='$newName', 
+                      dob='$newDob', 
+                      sex='$newSex', 
+                      InsuranceProvider='$newInsuranceProvider', 
+                      InsuranceNumber='$newInsuranceNumber', 
+                      PhoneNumber='$newPhoneNumber', 
+                      PatientAddress='$newPatientAddress', 
+                      BloodType='$newBloodType' 
+                      WHERE PatientID='$patientID'";
+
+        if ($conn->query($updateSql) === TRUE) {
+            $editMessage = "Patient details updated successfully!";
+        } else {
+            $editMessage = "Error updating patient details: " . $conn->error;
+        }
+    } else {
+        $editMessage = "Error: Patient ID not defined.";
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -61,30 +84,68 @@ $conn->close();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Patient Details</title>
+    <style>
+        /* Add your styling here */
+    </style>
 </head>
 <body>
     <h2>Edit Patient Details</h2>
 
-    <!-- Form to edit patient details -->
-    <form action="" method="post">
-        <label for="new_name">New Name:</label>
-        <input type="text" name="new_name" value="<?php echo $name; ?>" required><br>
+    <!-- Display edit message -->
+    <?php
+    if (!empty($editMessage)) {
+        echo "<p>$editMessage</p>";
+    }
+    ?>
 
-        <label for="new_dob">New DOB:</label>
-        <input type="date" name="new_dob" value="<?php echo $dob; ?>" required><br>
+    <!-- Form to enter Patient ID -->
+    <?php if ($showEnterPatientIDForm) { ?>
+        <form action="" method="post">
+            <label for="patient_id">Enter Patient ID:</label>
+            <input type="text" name="patient_id" required>
+            <input type="submit" name="find_patient" value="Find Patient">
+        </form>
+    <?php } ?>
 
-        <label for="new_sex">New Sex:</label>
-        <select name="new_sex" required>
-            <option value="male" <?php echo ($sex == 'male') ? 'selected' : ''; ?>>Male</option>
-            <option value="female" <?php echo ($sex == 'female') ? 'selected' : ''; ?>>Female</option>
-            <!-- Add more options as needed -->
-        </select><br>
+    <?php if (!empty($name)) { ?>
+        <!-- Form to edit patient details -->
+        <form action="" method="post">
+            <input type="hidden" name="patient_id" value="<?php echo $patientID; ?>">
+            <label for="new_name">New Name:</label>
+            <input type="text" name="new_name" value="<?php echo $name; ?>" required><br>
 
-        <!-- Add other fields similarly -->
+            <label for="new_dob">New DOB:</label>
+            <input type="date" name="new_dob" value="<?php echo $dob; ?>" required><br>
 
-        <input type="submit" value="Update Patient Details">
-    </form>
+            <label for="new_sex">New Sex:</label>
+            <select name="new_sex" required>
+                <option value="male" <?php echo ($sex == 'male') ? 'selected' : ''; ?>>Male</option>
+                <option value="female" <?php echo ($sex == 'female') ? 'selected' : ''; ?>>Female</option>
+				<option value="other" <?php echo ($sex == 'other') ? 'selected' : ''; ?>>Other</option>
+            </select><br>
 
-    <a href="dashboard.php">Back to Dashboard</a>
+            <label for="new_insurance_provider">New Insurance Provider:</label>
+            <input type="text" name="new_insurance_provider" value="<?php echo $insuranceProvider; ?>"><br>
+
+            <label for="new_insurance_number">New Insurance Number:</label>
+            <input type="text" name="new_insurance_number" value="<?php echo $insuranceNumber; ?>"><br>
+
+            <label for="new_phone_number">New Phone Number:</label>
+            <input type="tel" name="new_phone_number" value="<?php echo $phoneNumber; ?>"><br>
+
+            <label for="new_patient_address">New Patient Address:</label>
+            <input type="text" name="new_patient_address" value="<?php echo $patientAddress; ?>"><br>
+
+            <label for="new_blood_type">New Blood Type:</label>
+            <select name="new_blood_type" required>
+                <option value="A" <?php echo ($bloodType == 'A') ? 'selected' : ''; ?>>A</option>
+                <option value="B" <?php echo ($bloodType == 'B') ? 'selected' : ''; ?>>B</option>
+                <option value="AB" <?php echo ($bloodType == 'AB') ? 'selected' : ''; ?>>AB</option>
+                <option value="O" <?php echo ($bloodType == 'O') ? 'selected' : ''; ?>>O</option>
+            </select><br>
+
+            <input type="submit" name="update_patient" value="Update Patient Details">
+        </form>
+    <?php } ?>
 </body>
 </html>

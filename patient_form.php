@@ -60,8 +60,6 @@ include('header.php');
         <input type="submit" value="Add Patient">
     </form>
 
-    <a href="dashboard.php">Back to Dashboard</a>
-
     <!-- Script to initialize Inputmask for phone number -->
     <script>
         $(document).ready(function(){

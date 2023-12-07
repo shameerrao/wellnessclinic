@@ -84,3 +84,8 @@ footer {
     bottom: 0;
     width: 100%;
 }
+
+
+nav a.active {
+    background-color: #555;
+}

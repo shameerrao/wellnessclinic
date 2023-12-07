@@ -52,7 +52,5 @@ $result = $conn->query($sql);
         }
         ?>
     </table>
-
-    <a href="dashboard.php">Back to Dashboard</a>
 </body>
 </html>
